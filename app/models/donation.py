@@ -1,6 +1,5 @@
 # ++++++++++++++++++++++++++++++++++++++++++++++
 from sqlalchemy import Column, Text, Integer, Boolean, DateTime, ForeignKey
-from sqlalchemy.orm import relationship
 from app.core.db import Base
 
 
@@ -12,6 +11,3 @@ class Donation(Base):
     fully_invested = Column(Boolean)
     create_date = Column(DateTime)
     close_date = Column(DateTime)
-
-    # Установите связь между моделями через функцию relationship.
-    reservations = relationship('Reservation', cascade='delete') 
