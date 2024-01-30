@@ -6,7 +6,7 @@ from app.api.validators import (
     check_meeting_room_exists, check_reservation_intersections, check_reservation_before_edit
 )
 from app.core.db import get_async_session
-from app.crud.reservation import reservation_crud
+from app.crud.donation import reservation_crud
 from app.schemas.reservation import (
     ReservationCreate, ReservationDB, ReservationUpdate
 )

@@ -3,7 +3,7 @@ from typing import Optional
 
 
 class Settings(BaseSettings):
-    app_title: str = 'Бронирование переговорок'
+    app_title: str = 'Благотворительный фонд поддержки котиков'
     app_descriptions: str = 'тест-описание'
     database_url: str
     secret: str = 'SECRET'

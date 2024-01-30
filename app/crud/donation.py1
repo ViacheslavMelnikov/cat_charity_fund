@@ -1,28 +1,22 @@
-# app/crud/reservation.py
-
-# Новый импорт для аннотации параметров.
+# ++++++++++++++++++++++++++++++++++++++
 from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.base import CRUDBase
-from app.models import Reservation, User
+from app.models import Donation, User
 from sqlalchemy import and_, select
 from typing import Optional
 from datetime import datetime
 
 
-# Новый класс должен быть унаследован от CRUDBase.
-class CRUDReservation(CRUDBase):
+class CRUDDonation(CRUDBase):
 
-    async def get_reservations_at_the_same_time(
+    async def get_donation_at_the_same_time(
             self,
-            # Добавляем звёздочку, чтобы обозначить, что все дальнейшие параметры
-            # должны передаваться по ключу. Это позволит располагать 
-            # параметры со значением по умолчанию перед параметрами без таких значений.
             *,
-            from_reserve: datetime,
-            to_reserve: datetime,
+            create_date: datetime,
+            close_date: datetime,
             meetingroom_id: int,
             # Добавляем новый опциональный параметр - id объекта бронирования.
             reservation_id: Optional[int] = None,
