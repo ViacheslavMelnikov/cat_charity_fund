@@ -1,6 +1,6 @@
 from typing import Optional
-# from datetime import datetime
-from pydantic import BaseModel, Field, validator, PositiveInt, Extra
+from datetime import datetime
+from pydantic import BaseModel, PositiveInt, Extra
 
 
 class Donation(BaseModel):
@@ -14,17 +14,15 @@ class DonationCreate(Donation):
     full_amount: PositiveInt()
     comment: Optional[str]
 
-class DonationUpdate(Donation):
-    
-    @validator('full_amount')
-    def full_amount_cannot_be_null(cls, value):
-        if value is None:
-            raise ValueError('Укажите сумму пожертвования!')
-        return value
-
 
 class DonationDB(DonationCreate):
     id: int
+    user_id: Optional[int]
+    comment: Optional[str]
+    invested_amount: int
+    fully_invested: bool
+    create_date: datetime
+    close_date: Optional[datetime]
 
     class Config:
         orm_mode = True 

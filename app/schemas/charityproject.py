@@ -1,5 +1,5 @@
 from typing import Optional
-# from datetime import datetime
+from datetime import datetime
 from pydantic import BaseModel, Field, validator, PositiveInt, Extra
 
 
@@ -15,8 +15,8 @@ class CharityProjectCreate(CharityProject):
     name: str = Field(..., min_length=1, max_length=100)
     description: str = Field(..., min_length=1)
     full_amount: PositiveInt()
-    # create_date: datetime
-# Новый класс для обновления объектов.
+    
+
 class CharityProjectUpdate(CharityProject):
     
     @validator('name')
@@ -40,6 +40,10 @@ class CharityProjectUpdate(CharityProject):
 
 class CharityProjectDB(CharityProjectCreate):
     id: int
+    invested_amount: Optional[int]
+    fully_invested: Optional[bool]
+    create_date: datetime
+    close_date: Optional[datetime]
 
     class Config:
         orm_mode = True 
