@@ -1,6 +1,8 @@
-from sqlalchemy import Column, String, Text, Integer, Boolean, DateTime
-from app.core.db import Base
 from datetime import datetime
+
+from sqlalchemy import Boolean, Column, DateTime, Integer, String, Text
+
+from app.core.db import Base
 
 
 class AbstractBaseModel(Base):

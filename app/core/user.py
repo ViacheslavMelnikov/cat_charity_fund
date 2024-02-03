@@ -1,12 +1,10 @@
 from typing import Optional, Union
 
 from fastapi import Depends, Request
-from fastapi_users import (
-    BaseUserManager, FastAPIUsers, IntegerIDMixin, InvalidPasswordException
-)
-from fastapi_users.authentication import (
-    AuthenticationBackend, BearerTransport, JWTStrategy
-)
+from fastapi_users import (BaseUserManager, FastAPIUsers, IntegerIDMixin,
+                           InvalidPasswordException)
+from fastapi_users.authentication import (AuthenticationBackend,
+                                          BearerTransport, JWTStrategy)
 from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -22,8 +20,10 @@ async def get_user_db(session: AsyncSession = Depends(get_async_session)):
 
 bearer_transport = BearerTransport(tokenUrl='auth/jwt/login')
 
+
 def get_jwt_strategy() -> JWTStrategy:
     return JWTStrategy(secret=settings.secret, lifetime_seconds=3600)
+
 
 auth_backend = AuthenticationBackend(
     name='jwt',
@@ -51,6 +51,7 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
             self, user: User, request: Optional[Request] = None
     ):
         print(f'Пользователь {user.email} зарегистрирован.')
+
 
 async def get_user_manager(user_db=Depends(get_user_db)):
     yield UserManager(user_db)

@@ -1,8 +1,11 @@
+from typing import Optional
+
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Optional
+
 from app.models import User
+
 
 class CRUDBase:
 
@@ -10,7 +13,7 @@ class CRUDBase:
         self.model = model
 
     async def get(
-            self, 
+            self,
             obj_id: int,
             session: AsyncSession,
     ):
@@ -22,7 +25,7 @@ class CRUDBase:
         return db_obj.scalars().first()
 
     async def get_multi(
-            self, 
+            self,
             session: AsyncSession
     ):
         db_objs = await session.execute(select(self.model))

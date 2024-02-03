@@ -1,6 +1,7 @@
-from pydantic import BaseSettings, EmailStr
-from typing import Optional
 import logging
+from typing import Optional
+
+from pydantic import BaseSettings, EmailStr
 
 
 class Settings(BaseSettings):
@@ -19,6 +20,6 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = '.env'
-        
+
 
 settings = Settings()

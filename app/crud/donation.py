@@ -8,7 +8,9 @@ from app.models import Donation, User
 
 
 class CRUDDonation(CRUDBase):
-    async def get_all_donations(self, session: AsyncSession,
+    async def get_all_donations(
+            self,
+            session: AsyncSession,
             fully_invested: Optional[bool] = None,
     ) -> list[Donation]:
         select_donation = select(Donation)
@@ -26,5 +28,6 @@ class CRUDDonation(CRUDBase):
             select(Donation).where(Donation.user_id == user.id)
         )
         return donations.scalars().all()
+
 
 donation_crud = CRUDDonation(Donation)

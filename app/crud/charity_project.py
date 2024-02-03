@@ -33,5 +33,6 @@ class CRUDCharityProject(CRUDBase):
         charity_project = await session.execute(select_stmt)
         charity_project = charity_project.scalars().all()
         return charity_project
-    
+
+
 charity_project_crud = CRUDCharityProject(CharityProject)
