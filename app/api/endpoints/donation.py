@@ -3,11 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_async_session
 from app.core.user import current_superuser, current_user
-
-from app.crud import donation_crud
-
+from app.crud.donation import donation_crud
 from app.models import User
-
 from app.schemas.donation import DonationCreate, DonationDB
 from app.services.investment import donation_to_the_project
 
@@ -30,7 +27,9 @@ async def create_donation(
         session: AsyncSession = Depends(get_async_session),
         user: User = Depends(current_user),
 ):
-    """Любой зарегистрированный пользователь может сделать пожертвование."""
+    """
+    Сделать пожертвование.
+    """
     new_donation = await donation_crud.create(donation, session, user)
     await donation_to_the_project(session)
     await session.refresh(new_donation)
@@ -51,9 +50,9 @@ async def get_my_donations(
     session: AsyncSession = Depends(get_async_session),
     user: User = Depends(current_user),
 ):
-    """Зарегистрированный пользователь может просматривать
-    только свои пожертвования, при этом ему выводится только четыре поля:
-    id, comment, full_amount, create_date"""
+    """
+    Получить список моих пожертвований.
+    """
     donations = await donation_crud.get_by_user(
         session=session, user=user
     )
@@ -69,7 +68,9 @@ async def get_my_donations(
 async def get_all_donations(
     session: AsyncSession = Depends(get_async_session)
 ):
-    """Суперпользователь может просматривать список всех пожертвований,
-    при этом ему выводятся все поля модели."""
+    """
+    Только для суперюзеров.
+    Получает список всех пожертвований.
+    """
     donations = await donation_crud.get_multi(session)
     return donations

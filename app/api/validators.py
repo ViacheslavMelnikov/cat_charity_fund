@@ -1,38 +1,40 @@
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.crud.charityproject import charityproject_crud
+from app.crud.charity_project import charity_project_crud
 from app.models import CharityProject
-from app.schemas.charityproject import CharityProjectUpdate
+from app.schemas.charity_project import CharityProjectUpdate
 from http import HTTPStatus
 
 
 async def check_name_duplicate(
-        charityproject_name: str,
+        project_name: str,
         session: AsyncSession,
 ) -> None:
-    charityproject_id = await charityproject_crud.get_project_id_by_name(charityproject_name, session)
-    if charityproject_id is not None:
+    project_id = await charity_project_crud.get_project_id_by_name(
+        project_name, session
+    )
+    if project_id is not None:
         raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST,
+            status_code=HTTPStatus.BAD_REQUEST.value,
             detail='Проект с таким именем уже существует!',
         )
 
-        
-async def check_charityproject_exists(
-        charityproject_id: int,
+
+async def check_charity_project_exists(
+        charity_project_id: int,
         session: AsyncSession,
 ) -> CharityProject:
-    charityproject = await charityproject_crud.get(charityproject_id, session)
-    if charityproject is None:
+    charity_project = await charity_project_crud.get(charity_project_id, session)
+    if charity_project is None:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND,
             detail='Проект не найден!'
         )
-    return charityproject
+    return charity_project
 
 
-def check_data_charityproject(
+def check_data_charity_project(
         project: CharityProjectUpdate) -> None:
     keys = ['description', 'full_amount', 'name']
     if (
@@ -45,38 +47,37 @@ def check_data_charityproject(
     return
 
 
-async def check_charityproject_for_deletion(
-        charityproject_id: int,
+async def check_charity_project_for_deletion(
+        charity_project_id: int,
         session: AsyncSession,
 ) -> CharityProject:
-    charityproject = await charityproject_crud.get(
-        charityproject_id, session
+    charity_project = await charity_project_crud.get(
+        charity_project_id, session
     )
-    if charityproject.invested_amount > 0:
+    if charity_project.invested_amount > 0:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST.value,
-            detail=('Удаляет проект. Нельзя удалить проект, в который уже' +
-                    'были инвестированы средства, его можно только закрыть.')
+            detail='В проект были внесены средства, не подлежит удалению!'
         )
-    return charityproject
+    return charity_project
 
 
-async def check_charityproject_full_amount(
-        charityproject_id: int,
+async def check_charity_project_full_amount(
+        charity_project_id: int,
         full_amount: int,
         session: AsyncSession,
 ) -> CharityProject:
-    charityproject = await charityproject_crud.get(
-        charityproject_id, session
+    charity_project = await charity_project_crud.get(
+        charity_project_id, session
     )
-    if charityproject.fully_invested:
+    if charity_project.fully_invested:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST.value,
             detail='Закрытый проект нельзя редактировать!'
         )
-    if full_amount and charityproject.invested_amount > full_amount:
+    if full_amount and charity_project.invested_amount > full_amount:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST.value,
             detail='Нельзя установить требуемую сумму меньше уже вложенной.!'
         )
-    return charityproject
+    return charity_project

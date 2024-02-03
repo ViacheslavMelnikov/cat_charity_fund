@@ -2,7 +2,7 @@ from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.crud import charityproject_crud, donation_crud
+from app.crud import charity_project_crud, donation_crud
 
 
 async def project_completed(project: any, session: AsyncSession,) -> None:
@@ -14,7 +14,7 @@ async def project_completed(project: any, session: AsyncSession,) -> None:
 async def donation_to_the_project(
         session: AsyncSession,
 ) -> None:
-    available_projects = await charityproject_crud.get_all_charity_project(
+    available_projects = await charity_project_crud.get_all_charity_project(
         session=session,
         fully_invested=False
     )
