@@ -1,114 +1,75 @@
-# app/api/endpoints/reservaion.py
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.validators import (
-    check_meeting_room_exists, check_reservation_intersections, check_reservation_before_edit
-)
 from app.core.db import get_async_session
-from app.crud.donation import reservation_crud
-from app.schemas.reservation import (
-    ReservationCreate, ReservationDB, ReservationUpdate
-)
+from app.core.user import current_superuser, current_user
 
-from app.core.user import current_user
+from app.crud import donation_crud
+
 from app.models import User
+
+from app.schemas.donation import DonationCreate, DonationDB
+from app.services.investment import donation_to_the_project
 
 router = APIRouter()
 
 
-# Эндпоинт создания объекта.
-@router.post('/', response_model=ReservationDB)
-async def create_reservation(
-        reservation: ReservationCreate,
+@router.post(
+    '/',
+    response_model=DonationDB,
+    response_model_exclude={
+        'user_id',
+        'close_date',
+        'invested_amount',
+        'fully_invested'
+    },
+    response_model_exclude_none=True,
+)
+async def create_donation(
+        donation: DonationCreate,
         session: AsyncSession = Depends(get_async_session),
-        # Получаем текущего пользователя и сохраняем в переменную user.
         user: User = Depends(current_user),
 ):
-    await check_meeting_room_exists(
-        reservation.meetingroom_id, session
-    )
-    await check_reservation_intersections(
-        **reservation.dict(), session=session
-    )
-    new_reservation = await reservation_crud.create(
-        # Передаём объект пользователя в метод создания объекта бронирования.
-        reservation, session, user
-    )
-    return new_reservation
-
-
-@router.get('/', response_model=list[ReservationDB])
-async def get_all_reservations(
-        session: AsyncSession = Depends(get_async_session),
-):
-    reservations = await reservation_crud.get_multi(session)
-    return reservations
-
-
-@router.delete('/{reservation_id}', response_model=ReservationDB)
-async def delete_reservation(
-        reservation_id: int,
-        session: AsyncSession = Depends(get_async_session),
-        # Новая зависимость.
-        user: User = Depends(current_user),
-):
-    """Для суперюзеров или создателей объекта бронирования."""
-    reservation = await check_reservation_before_edit(
-        # Дописываем передачу user в валидатор.
-        reservation_id, session, user
-    )
-    reservation = await reservation_crud.remove(reservation, session)
-    return reservation
-
-
-@router.patch('/{reservation_id}', response_model=ReservationDB)
-async def update_reservation(
-        reservation_id: int,
-        obj_in: ReservationUpdate,
-        session: AsyncSession = Depends(get_async_session),
-        # Новая зависимость.
-        user: User = Depends(current_user),
-):
-    """Для суперюзеров или создателей объекта бронирования."""
-    reservation = await check_reservation_before_edit(
-        # Дописываем передачу user в валидатор.
-        reservation_id, session, user
-    )
-    # Проверяем, что нет пересечений с другими бронированиями.
-    await check_reservation_intersections(
-        # Новое время бронирования, распакованное на ключевые аргументы.
-        **obj_in.dict(),
-        # id обновляемого объекта бронирования,
-        reservation_id=reservation_id,
-        # id переговорки.
-        meetingroom_id=reservation.meetingroom_id,
-        session=session
-    )
-    reservation = await reservation_crud.update(
-        db_obj=reservation,
-        # На обновление передаем объект класса ReservationUpdate, как и требуется.
-        obj_in=obj_in,
-        session=session,
-    )
-    return reservation
+    """Любой зарегистрированный пользователь может сделать пожертвование."""
+    new_donation = await donation_crud.create(donation, session, user)
+    await donation_to_the_project(session)
+    await session.refresh(new_donation)
+    return new_donation
 
 
 @router.get(
-    '/my_reservations', 
-    response_model=list[ReservationDB],
-    # Добавляем множество с полями, которые надо исключить из ответа.
-    response_model_exclude={'user_id'},
+    '/my',
+    response_model=list[DonationDB],
+    response_model_exclude={
+        'user_id',
+        'close_date',
+        'invested_amount',
+        'fully_invested'
+    }
 )
-async def get_my_reservations(
-        session: AsyncSession = Depends(get_async_session),
-        # В этой зависимости получаем обычного пользователя, а не суперюзера.
-        user: User = Depends(current_user)
+async def get_my_donations(
+    session: AsyncSession = Depends(get_async_session),
+    user: User = Depends(current_user),
 ):
-    # Сразу можно добавить докстринг для большей информативности.
-    """Получает список всех бронирований для текущего пользователя."""
-    # Вызываем созданный метод.
-    reservations = await reservation_crud.get_by_user(
+    """Зарегистрированный пользователь может просматривать
+    только свои пожертвования, при этом ему выводится только четыре поля:
+    id, comment, full_amount, create_date"""
+    donations = await donation_crud.get_by_user(
         session=session, user=user
     )
-    return reservations
+    return donations
+
+
+@router.get(
+    '/',
+    response_model=list[DonationDB],
+    dependencies=[Depends(current_superuser)],
+    response_model_exclude={'close_date'}
+)
+async def get_all_donations(
+    session: AsyncSession = Depends(get_async_session)
+):
+    """Суперпользователь может просматривать список всех пожертвований,
+    при этом ему выводятся все поля модели."""
+    donations = await donation_crud.get_multi(session)
+    return donations
