@@ -3,9 +3,11 @@ from typing import Optional
 
 from pydantic import BaseModel, Extra, Field, PositiveInt, validator
 
+from core.config import MAX_LENGTH_NAME
+
 
 class CharityProject(BaseModel):
-    name: Optional[str] = Field(None, min_length=1, max_length=100)
+    name: Optional[str] = Field(None, min_length=1, max_length=MAX_LENGTH_NAME)
     description: Optional[str]
     full_amount: Optional[PositiveInt]
 
@@ -14,7 +16,7 @@ class CharityProject(BaseModel):
 
 
 class CharityProjectCreate(CharityProject):
-    name: str = Field(..., min_length=1, max_length=100)
+    name: str = Field(..., min_length=1, max_length=MAX_LENGTH_NAME)
     description: str = Field(..., min_length=1)
     full_amount: PositiveInt()
 

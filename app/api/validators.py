@@ -38,13 +38,11 @@ async def check_charity_project_exists(
 def check_data_charity_project(
         project: CharityProjectUpdate) -> None:
     keys = ['description', 'full_amount', 'name']
-    if (
-        not set(keys).issubset(list(project.dict())) or
-        '' in project.dict().values()
-    ):
-        raise HTTPException(
-            status_code=HTTPStatus.UNPROCESSABLE_ENTITY.value,
-            detail='Проверка данных не пройдена!')
+    for key in keys:
+        if key not in list(project.dict()) or project.dict()[key] == '':
+            raise HTTPException(
+                status_code=HTTPStatus.UNPROCESSABLE_ENTITY.value,
+                detail='Проверка данных не пройдена!')
     return
 
 

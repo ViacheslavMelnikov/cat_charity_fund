@@ -16,8 +16,7 @@ class CRUDDonation(CRUDBase):
         select_donation = select(Donation)
         select_donation = select_donation.where(Donation.fully_invested == fully_invested)
         donations = await session.execute(select_donation)
-        donations = donations.scalars().all()
-        return donations
+        return donations.scalars().all()
 
     async def get_by_user(
             self,

@@ -3,6 +3,10 @@ from typing import Optional
 
 from pydantic import BaseSettings, EmailStr
 
+LIFETIME_SECONDS = 3600
+MIN_LEN_PASSWORD = 3
+MAX_LENGTH_NAME = 100
+
 
 class Settings(BaseSettings):
     app_title: str = 'Благотворительный фонд поддержки котиков'

@@ -50,14 +50,12 @@ async def get_all_charity_projects(
     """
     Получает список всех проектов.
     """
-    all_project = await charity_project_crud.get_multi(session)
-    return all_project
+    return await charity_project_crud.get_multi(session)
 
 
 @router.patch(
     '/{project_id}',
     response_model=CharityProjectDB,
-    # response_model_exclude_none=True,
     dependencies=[Depends(current_superuser)],
 )
 async def partially_update_charity_project(
@@ -93,7 +91,6 @@ async def partially_update_charity_project(
 @router.delete(
     '/{charity_project_id}',
     response_model=CharityProjectDB,
-    # response_model_exclude_none=True,
     dependencies=[Depends(current_superuser)],
 )
 async def remove_charity_project(
@@ -108,5 +105,4 @@ async def remove_charity_project(
     charity_project = await check_charity_project_for_deletion(
         charity_project_id, session
     )
-    charity_project = await charity_project_crud.remove(charity_project, session)
-    return charity_project
+    return await charity_project_crud.remove(charity_project, session)

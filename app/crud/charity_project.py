@@ -31,8 +31,7 @@ class CRUDCharityProject(CRUDBase):
             CharityProject.fully_invested == fully_invested
         )
         charity_project = await session.execute(select_stmt)
-        charity_project = charity_project.scalars().all()
-        return charity_project
+        return charity_project.scalars().all()
 
 
 charity_project_crud = CRUDCharityProject(CharityProject)
